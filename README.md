@@ -1,6 +1,6 @@
-# ClothesRental - ASP.NET Core MVC Application
+# ClothesRental - ASP.NET Web Forms Application
 
-A comprehensive clothes rental management system built with ASP.NET Core MVC, Entity Framework Core, and Bootstrap.
+A comprehensive clothes rental management system built with ASP.NET Web Forms, SQL Server, and Bootstrap.
 
 ## Features
 
@@ -15,10 +15,10 @@ A comprehensive clothes rental management system built with ASP.NET Core MVC, En
 - **Product Codes**: Unique codes for easy identification (ED-001, CD-002, etc.)
 - **Categories**: Formal, Cocktail, Wedding, Business, Casual
 - **Status Tracking**: Available, Delivered, Reserved, Washing
-- **CRUD Operations**: Create, Read, Update, Delete products
+- **Search & Filter**: Advanced filtering capabilities
 
 ### 📅 **Booking System**
-- **Date Selection**: Interactive calendar with availability checking
+- **Date Selection**: Interactive date selection with availability checking
 - **Customer Details**: Complete customer information capture
 - **Price Calculation**: Automatic pricing based on rental duration
 - **Status Management**: Track booking lifecycle from confirmed to completed
@@ -28,17 +28,17 @@ A comprehensive clothes rental management system built with ASP.NET Core MVC, En
 - **Availability Checking**: Real-time availability validation
 - **Washing Period**: Automatic washing time calculation after returns
 - **Responsive Design**: Mobile-friendly Bootstrap interface
-- **Data Persistence**: Entity Framework Core with SQL Server
+- **Data Persistence**: SQL Server database with proper relationships
 - **Form Validation**: Client and server-side validation
 - **Status Management**: Complete booking lifecycle tracking
 
 ## Technology Stack
 
-- **Framework**: ASP.NET Core 8.0 MVC
-- **Database**: Entity Framework Core with SQL Server
+- **Framework**: ASP.NET Web Forms 4.8
+- **Database**: SQL Server (SSMS compatible)
 - **Frontend**: Bootstrap 5, jQuery, Font Awesome
-- **Architecture**: Repository Pattern with Services
-- **Validation**: Data Annotations, Client-side validation
+- **Architecture**: 3-tier architecture with Data Access Layer
+- **Validation**: ASP.NET validators, client-side validation
 
 ## Database Schema
 
@@ -56,9 +56,9 @@ A comprehensive clothes rental management system built with ASP.NET Core MVC, En
 ## Getting Started
 
 ### Prerequisites
-- .NET 8.0 SDK
+- .NET Framework 4.8
 - SQL Server (LocalDB or full instance)
-- Visual Studio 2022 or VS Code
+- Visual Studio 2019/2022 or IIS
 
 ### Installation
 
@@ -68,81 +68,61 @@ A comprehensive clothes rental management system built with ASP.NET Core MVC, En
    cd ClothesRental
    ```
 
-2. **Update connection string**
-   ```json
-   // appsettings.json
-   {
-     "ConnectionStrings": {
-       "DefaultConnection": "Server=(localdb)\\mssqllocaldb;Database=ClothesRentalDb;Trusted_Connection=true;MultipleActiveResultSets=true"
-     }
-   }
-   ```
+2. **Setup Database**
+   - Open SQL Server Management Studio (SSMS)
+   - Run the script from `App_Data/Database.sql`
+   - Update connection string in `Web.config` if needed
 
-3. **Restore packages**
-   ```bash
-   dotnet restore
-   ```
+3. **Configure IIS/Visual Studio**
+   - Open project in Visual Studio
+   - Set as startup project
+   - Build and run (F5)
 
-4. **Run the application**
-   ```bash
-   dotnet run
-   ```
-
-5. **Access the application**
-   - Open browser to `https://localhost:5001`
-   - Database will be created automatically with sample data
+4. **Access the application**
+   - Open browser to `http://localhost:port`
+   - Database will be populated with sample data
 
 ## Project Structure
 
 ```
 ClothesRental/
-├── Controllers/           # MVC Controllers
-│   ├── HomeController.cs
-│   ├── ProductsController.cs
-│   └── BookingsController.cs
-├── Models/               # Data Models
-│   ├── Product.cs
-│   ├── Booking.cs
-│   └── ViewModels/
-├── Services/             # Business Logic
-│   ├── IProductService.cs
-│   ├── ProductService.cs
-│   ├── IBookingService.cs
-│   └── BookingService.cs
-├── Data/                 # Database Context
-│   └── ApplicationDbContext.cs
-├── Views/                # Razor Views
-│   ├── Home/
-│   ├── Products/
-│   ├── Bookings/
-│   └── Shared/
-└── wwwroot/              # Static Files
-    ├── css/
-    ├── js/
-    └── lib/
+├── App_Code/              # Business Logic Classes
+│   ├── DataAccess.cs      # Data Access Layer
+│   ├── Product.cs         # Product Entity
+│   └── Booking.cs         # Booking Entity
+├── App_Data/              # Database Scripts
+│   └── Database.sql       # Database creation script
+├── Content/               # CSS Files
+│   └── Site.css          # Custom styles
+├── Scripts/               # JavaScript Files
+│   └── site.js           # Custom JavaScript
+├── *.aspx                 # Web Forms Pages
+├── *.aspx.cs             # Code-behind files
+├── Site.Master           # Master Page
+├── Site.Master.cs        # Master Page code-behind
+└── Web.config            # Configuration file
 ```
 
 ## Key Components
 
-### Services Layer
-- **ProductService**: Product management and availability checking
-- **BookingService**: Booking creation and status management
-- **Dependency Injection**: Services registered in Program.cs
+### Data Access Layer
+- **DataAccess.cs**: Centralized data access with SQL Server
+- **Product.cs**: Product entity with properties and methods
+- **Booking.cs**: Booking entity with business logic
+- **SQL Server**: Robust database with proper relationships
 
-### Data Layer
-- **ApplicationDbContext**: Entity Framework context
-- **Seed Data**: Sample products and bookings
-- **Migrations**: Database schema management
+### Web Forms Pages
+- **Default.aspx**: Main page with product availability checking
+- **CheckAvailability.aspx**: Date selection and availability validation
+- **CreateBooking.aspx**: Customer details and booking creation
+- **BookingConfirmation.aspx**: Booking confirmation page
+- **Bookings.aspx**: All bookings management
+- **Products.aspx**: Product management interface
 
-### Controllers
-- **HomeController**: Main page and availability checking
-- **ProductsController**: Product CRUD operations
-- **BookingsController**: Booking management
-
-### Views
-- **Responsive Design**: Bootstrap-based responsive layouts
-- **Partial Views**: Reusable components
-- **Form Validation**: Client and server-side validation
+### Master Page
+- **Site.Master**: Consistent layout with Bootstrap navigation
+- **Responsive Design**: Mobile-friendly responsive layout
+- **Message System**: Centralized success/error messaging
 
 ## Sample Data
 
@@ -181,26 +161,38 @@ The application includes sample products:
 ## Customization
 
 ### Adding New Product Categories
-1. Update seed data in `ApplicationDbContext.cs`
-2. Add category to dropdown lists in views
+1. Update database with new categories
+2. Categories will automatically appear in dropdowns
 3. Update validation if needed
 
 ### Extending Booking Features
-1. Add new properties to `Booking` model
-2. Update database context and run migration
-3. Modify views and services accordingly
+1. Add new columns to Bookings table
+2. Update DataAccess.cs methods
+3. Modify ASPX pages and code-behind accordingly
 
 ### Styling Customization
-- Modify `wwwroot/css/site.css` for custom styles
-- Update Bootstrap theme in `_Layout.cshtml`
-- Add custom JavaScript in `wwwroot/js/site.js`
+- Modify `Content/Site.css` for custom styles
+- Update Bootstrap theme in Master Page
+- Add custom JavaScript in `Scripts/site.js`
+
+## Database Connection
+
+Update the connection string in `Web.config`:
+
+```xml
+<connectionStrings>
+  <add name="ClothesRentalConnectionString" 
+       connectionString="Data Source=YourServer;Initial Catalog=ClothesRental;Integrated Security=True" 
+       providerName="System.Data.SqlClient" />
+</connectionStrings>
+```
 
 ## Contributing
 
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Add tests if applicable
+4. Test thoroughly
 5. Submit a pull request
 
 ## License
