@@ -70,8 +70,9 @@ A comprehensive clothes rental management system built with ASP.NET Web Forms, S
 
 2. **Setup Database**
    - Open SQL Server Management Studio (SSMS)
+   - Connect to localhost SQL Server instance
    - Run the script from `App_Data/Database.sql`
-   - Update connection string in `Web.config` if needed
+   - Database 'ClothesRentalDB' will be created automatically
 
 3. **Configure IIS/Visual Studio**
    - Open project in Visual Studio
@@ -177,16 +178,21 @@ The application includes sample products:
 
 ## Database Connection
 
-Update the connection string in `Web.config`:
+The application uses localhost SQL Server with this connection string in `Web.config`:
 
 ```xml
 <connectionStrings>
   <add name="ClothesRentalConnectionString" 
-       connectionString="Data Source=YourServer;Initial Catalog=ClothesRental;Integrated Security=True" 
+       connectionString="Data Source=localhost;Initial Catalog=ClothesRentalDB;Integrated Security=True;TrustServerCertificate=True" 
        providerName="System.Data.SqlClient" />
 </connectionStrings>
 ```
 
+### Database Setup Requirements
+- **SQL Server**: Localhost instance running
+- **Authentication**: Windows Authentication (Integrated Security)
+- **Database Name**: ClothesRentalDB
+- **Auto-Creation**: Database created automatically by running the SQL script
 ## Contributing
 
 1. Fork the repository
