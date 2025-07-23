@@ -35,21 +35,60 @@ const BookingsList: React.FC<BookingsListProps> = ({ bookings, products, onBooki
   return (
     <div className="space-y-4">
       {bookings.map((booking) => {
-        const product = getProduct(booking.productId);
-        if (!product) return null;
+        // Handle both single and multiple product bookings
+        const isMultipleProducts = booking.products && booking.products.length > 0;
+        const singleProduct = booking.productId ? getProduct(booking.productId) : null;
+        
+        if (!isMultipleProducts && !singleProduct) return null;
 
         return (
           <div key={booking.id} className="bg-white rounded-lg shadow-md p-6">
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center">
-                <img 
-                  src={product.image} 
-                  alt={product.name}
-                  className="w-16 h-16 rounded-lg object-cover mr-4"
-                />
+                {isMultipleProducts ? (
+                  <div className="flex -space-x-2 mr-4">
+                    {booking.products!.slice(0, 3).map((bp, index) => {
+                      const product = getProduct(bp.productId);
+                      return product ? (
+                        <img 
+                          key={bp.productId}
+                          src={product.image} 
+                          alt={product.name}
+                          className="w-16 h-16 rounded-lg object-cover border-2 border-white"
+                          style={{ zIndex: 10 - index }}
+                        />
+                      ) : null;
+                    })}
+                    {booking.products!.length > 3 && (
+                      <div className="w-16 h-16 rounded-lg bg-gray-200 border-2 border-white flex items-center justify-center text-sm font-medium text-gray-600">
+                        +{booking.products!.length - 3}
+                      </div>
+                    )}
+                  </div>
+                ) : singleProduct ? (
+                  <img 
+                    src={singleProduct.image} 
+                    alt={singleProduct.name}
+                    className="w-16 h-16 rounded-lg object-cover mr-4"
+                  />
+                ) : null}
+                
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-900">{product.name}</h3>
+                  <h3 className="text-lg font-semibold text-gray-900">
+                    {isMultipleProducts 
+                      ? `Multiple Products (${booking.products!.length} items)`
+                      : singleProduct?.name
+                    }
+                  </h3>
                   <p className="text-sm text-gray-600">Booking #{booking.id}</p>
+                  {isMultipleProducts && (
+                    <p className="text-xs text-gray-500">
+                      {booking.products!.map(bp => {
+                        const product = getProduct(bp.productId);
+                        return product ? `${product.name} (${bp.quantity})` : '';
+                      }).filter(Boolean).join(', ')}
+                    </p>
+                  )}
                 </div>
               </div>
               <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(booking.status)}`}>

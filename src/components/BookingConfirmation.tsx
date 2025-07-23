@@ -5,15 +5,19 @@ import { formatDate } from '../utils/dateUtils';
 
 interface BookingConfirmationProps {
   booking: Booking;
-  product: Product;
+  product?: Product; // Optional for multiple product bookings
+  products?: Product[]; // For multiple product bookings
   onClose: () => void;
 }
 
 const BookingConfirmation: React.FC<BookingConfirmationProps> = ({ 
   booking, 
   product, 
+  products,
   onClose 
 }) => {
+  const isMultipleProducts = booking.products && booking.products.length > 0;
+  
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
       <div className="bg-white rounded-2xl max-w-md w-full p-8 text-center">
@@ -32,7 +36,12 @@ const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Product:</span>
-              <span className="font-medium">{product.name}</span>
+              <span className="font-medium">
+                {isMultipleProducts 
+                  ? `${booking.products!.length} Products`
+                  : product?.name
+                }
+              </span>
             </div>
             <div className="flex justify-between">
               <span className="text-gray-600">Duration:</span>

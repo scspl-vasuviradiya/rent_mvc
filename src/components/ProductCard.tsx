@@ -1,6 +1,6 @@
 import React from 'react';
 import { Product } from '../types';
-import { Calendar, Tag, Palette, Ruler, AlertCircle } from 'lucide-react';
+import { Calendar, Tag, Palette, Ruler, AlertCircle, ShoppingCart } from 'lucide-react';
 import { getStatusColor, getStatusText } from '../utils/statusUtils';
 
 interface ProductCardProps {
@@ -8,13 +8,15 @@ interface ProductCardProps {
   isFullyBooked?: boolean;
   nextAvailableDate?: string;
   onSelect: (product: Product) => void;
+  onAddToCart?: (product: Product) => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ 
   product, 
   isFullyBooked = false,
   nextAvailableDate,
-  onSelect 
+  onSelect,
+  onAddToCart
 }) => {
 
   return (
@@ -79,9 +81,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
               </p>
             )}
             <button
+          <div className="space-y-2">
+            <button
               onClick={() => onSelect(product)}
               disabled={product.status !== 'available'}
-              className={`px-6 py-2 rounded-lg font-medium transition-colors duration-200 ${
+              className={`w-full px-4 py-2 rounded-lg font-medium transition-colors duration-200 ${
                 product.status === 'available'
                   ? 'bg-blue-600 text-white hover:bg-blue-700'
                   : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -90,6 +94,16 @@ const ProductCard: React.FC<ProductCardProps> = ({
               <Calendar className="w-4 h-4 inline mr-2" />
               {product.status === 'available' ? 'Check Dates' : 'Unavailable'}
             </button>
+            
+            {onAddToCart && product.status === 'available' && (
+              <button
+                onClick={() => onAddToCart(product)}
+                className="w-full px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors duration-200 text-sm"
+              >
+                <ShoppingCart className="w-4 h-4 inline mr-2" />
+                Add to Cart
+              </button>
+            )}
           </div>
         </div>
       </div>

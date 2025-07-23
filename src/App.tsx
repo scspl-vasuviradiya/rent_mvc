@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Product, Booking, DateRange } from './types';
+import { Product, Booking, DateRange, CartItem } from './types';
 import { mockProducts, mockBookings } from './data/mockData';
 import { useLocalStorage } from './hooks/useLocalStorage';
 import { getNextAvailableDate, isProductAvailableForDates } from './utils/availabilityUtils';
@@ -7,16 +7,20 @@ import Header from './components/Header';
 import ProductCard from './components/ProductCard';
 import AvailabilityCalendar from './components/AvailabilityCalendar';
 import BookingForm from './components/BookingForm';
+import MultipleBookingForm from './components/MultipleBookingForm';
 import BookingConfirmation from './components/BookingConfirmation';
 import BookingsList from './components/BookingsList';
 import CustomerManagement from './components/CustomerManagement';
 import AdminPanel from './components/AdminPanel';
 import UnifiedAvailabilityChecker from './components/UnifiedAvailabilityChecker';
+import ShoppingCart from './components/ShoppingCart';
+import AddToCartModal from './components/AddToCartModal';
 import { Search, Filter } from 'lucide-react';
 
 function App() {
   const [products, setProducts] = useLocalStorage<Product[]>('products', mockProducts);
   const [bookings, setBookings] = useLocalStorage<Booking[]>('bookings', mockBookings);
+  const [cartItems, setCartItems] = useLocalStorage<CartItem[]>('cartItems', []);
   const [activeTab, setActiveTab] = useState('products');
   const [searchTerm, setSearchTerm] = useState('');
   const [filterCategory, setFilterCategory] = useState('all');
@@ -27,8 +31,12 @@ function App() {
   const [selectedDateRange, setSelectedDateRange] = useState<DateRange | null>(null);
   const [preSelectedDate, setPreSelectedDate] = useState<string>('');
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const [showMultipleBookingForm, setShowMultipleBookingForm] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [lastBooking, setLastBooking] = useState<Booking | null>(null);
+  const [showCart, setShowCart] = useState(false);
+  const [showAddToCartModal, setShowAddToCartModal] = useState(false);
+  const [selectedProductForCart, setSelectedProductForCart] = useState<Product | null>(null);
 
   const categories = ['all', ...new Set(products.map(p => p.category))];
   const statuses = ['all', 'available', 'reserved', 'washing'];
@@ -54,13 +62,30 @@ function App() {
 
   const handleBookingComplete = (booking: Booking) => {
     setBookings(prev => [...prev, booking]);
-    setProducts(prev => prev.map(p => 
-      p.id === booking.productId 
-        ? { ...p, status: 'delivered' as const }
-        : p
-    ));
+    
+    // Handle both single and multiple product bookings
+    if (booking.productId) {
+      // Single product booking
+      setProducts(prev => prev.map(p => 
+        p.id === booking.productId 
+          ? { ...p, status: 'delivered' as const }
+          : p
+      ));
+    } else if (booking.products) {
+      // Multiple product booking
+      const productIds = booking.products.map(bp => bp.productId);
+      setProducts(prev => prev.map(p => 
+        productIds.includes(p.id)
+          ? { ...p, status: 'delivered' as const }
+          : p
+      ));
+      // Clear cart after successful booking
+      setCartItems([]);
+    }
+    
     setLastBooking(booking);
     setShowBookingForm(false);
+    setShowMultipleBookingForm(false);
     setShowConfirmation(true);
   };
 
@@ -70,6 +95,7 @@ function App() {
     setPreSelectedDate('');
     setShowBookingForm(false);
     setShowConfirmation(false);
+    setShowMultipleBookingForm(false);
     setLastBooking(null);
   };
 
@@ -99,6 +125,66 @@ function App() {
       ));
     }
   };
+
+  const handleAddToCart = (product: Product) => {
+    setSelectedProductForCart(product);
+    setShowAddToCartModal(true);
+  };
+
+  const handleAddToCartConfirm = (product: Product, quantity: number, dateRange: DateRange) => {
+    const newCartItem: CartItem = {
+      product,
+      quantity,
+      startDate: dateRange.start,
+      endDate: dateRange.end
+    };
+    
+    setCartItems(prev => {
+      const existingIndex = prev.findIndex(item => item.product.id === product.id);
+      if (existingIndex >= 0) {
+        // Update existing item
+        const updated = [...prev];
+        updated[existingIndex] = newCartItem;
+        return updated;
+      } else {
+        // Add new item
+        return [...prev, newCartItem];
+      }
+    });
+    
+    setShowAddToCartModal(false);
+    setSelectedProductForCart(null);
+  };
+
+  const handleUpdateCartQuantity = (productId: string, quantity: number) => {
+    setCartItems(prev => prev.map(item => 
+      item.product.id === productId 
+        ? { ...item, quantity }
+        : item
+    ));
+  };
+
+  const handleRemoveFromCart = (productId: string) => {
+    setCartItems(prev => prev.filter(item => item.product.id !== productId));
+  };
+
+  const handleUpdateCartDates = (productId: string, dateRange: DateRange) => {
+    setCartItems(prev => prev.map(item => 
+      item.product.id === productId 
+        ? { ...item, startDate: dateRange.start, endDate: dateRange.end }
+        : item
+    ));
+  };
+
+  const handleProceedToCheckout = () => {
+    setShowCart(false);
+    setShowMultipleBookingForm(true);
+  };
+
+  const getCartItemCount = () => {
+    return cartItems.reduce((total, item) => total + item.quantity, 0);
+  };
+
   const renderProductsTab = () => (
     <div className="space-y-6">
       {/* Product Availability & Status */}
@@ -161,6 +247,7 @@ function App() {
             product={product}
             nextAvailableDate={getNextAvailableDate(product.id, bookings)}
             onSelect={handleProductSelect}
+            onAddToCart={handleAddToCart}
           />
         ))}
       </div>
@@ -215,7 +302,12 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header activeTab={activeTab} onTabChange={setActiveTab} />
+      <Header 
+        activeTab={activeTab} 
+        onTabChange={setActiveTab}
+        cartItemCount={getCartItemCount()}
+        onCartClick={() => setShowCart(true)}
+      />
       
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {renderActiveTab()}
@@ -242,11 +334,41 @@ function App() {
         />
       )}
 
+      {showMultipleBookingForm && cartItems.length > 0 && (
+        <MultipleBookingForm
+          cartItems={cartItems}
+          onBookingComplete={handleBookingComplete}
+          onClose={handleCloseAllModals}
+        />
+      )}
+
       {showConfirmation && lastBooking && selectedProduct && (
         <BookingConfirmation
           booking={lastBooking}
           product={selectedProduct}
           onClose={handleCloseAllModals}
+        />
+      )}
+
+      {showCart && (
+        <ShoppingCart
+          cartItems={cartItems}
+          onUpdateQuantity={handleUpdateCartQuantity}
+          onRemoveItem={handleRemoveFromCart}
+          onUpdateDates={handleUpdateCartDates}
+          onProceedToCheckout={handleProceedToCheckout}
+          onClose={() => setShowCart(false)}
+        />
+      )}
+
+      {showAddToCartModal && selectedProductForCart && (
+        <AddToCartModal
+          product={selectedProductForCart}
+          onAddToCart={handleAddToCartConfirm}
+          onClose={() => {
+            setShowAddToCartModal(false);
+            setSelectedProductForCart(null);
+          }}
         />
       )}
     </div>

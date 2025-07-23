@@ -14,7 +14,8 @@ export interface Product {
 
 export interface Booking {
   id: string;
-  productId: string;
+  productId?: string; // For backward compatibility
+  products?: BookingProduct[]; // For multiple products
   startDate: string;
   endDate: string;
   deliveryDate?: string;
@@ -25,6 +26,20 @@ export interface Booking {
   userDetails: UserDetails;
   status: 'confirmed' | 'delivered' | 'active' | 'returned' | 'washing' | 'completed' | 'cancelled';
   createdAt: string;
+}
+
+export interface BookingProduct {
+  productId: string;
+  quantity: number;
+  pricePerDay: number;
+  subtotal: number;
+}
+
+export interface CartItem {
+  product: Product;
+  quantity: number;
+  startDate: string;
+  endDate: string;
 }
 
 export interface UserDetails {

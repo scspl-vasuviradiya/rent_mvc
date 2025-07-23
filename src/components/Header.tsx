@@ -1,12 +1,14 @@
 import React from 'react';
-import { Shirt, Calendar, Users, Settings } from 'lucide-react';
+import { Shirt, Calendar, Users, Settings, ShoppingCart } from 'lucide-react';
 
 interface HeaderProps {
   activeTab: string;
   onTabChange: (tab: string) => void;
+  cartItemCount?: number;
+  onCartClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
+const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange, cartItemCount = 0, onCartClick }) => {
   const tabs = [
     { id: 'products', label: 'Products', icon: Shirt },
     { id: 'bookings', label: 'Bookings', icon: Calendar },
@@ -42,6 +44,20 @@ const Header: React.FC<HeaderProps> = ({ activeTab, onTabChange }) => {
               );
             })}
           </nav>
+          
+          {onCartClick && (
+            <button
+              onClick={onCartClick}
+              className="relative p-2 text-white hover:bg-blue-700 rounded-lg transition-colors"
+            >
+              <ShoppingCart className="w-6 h-6" />
+              {cartItemCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                  {cartItemCount}
+                </span>
+              )}
+            </button>
+          )}
         </div>
       </div>
     </header>
