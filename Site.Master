@@ -74,6 +74,16 @@
                                 <i class="fas fa-calendar me-1"></i>Bookings
                             </a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="CustomerManagement.aspx">
+                                <i class="fas fa-users me-1"></i>Customers
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="AdminPanel.aspx">
+                                <i class="fas fa-cog me-1"></i>Admin
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>

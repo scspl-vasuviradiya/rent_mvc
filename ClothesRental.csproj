@@ -66,6 +66,10 @@
     <Content Include="CheckAvailability.aspx" />
     <Content Include="CreateBooking.aspx" />
     <Content Include="BookingConfirmation.aspx" />
+    <Content Include="AdminPanel.aspx" />
+    <Content Include="ProductDetails.aspx" />
+    <Content Include="CustomerManagement.aspx" />
+    <Content Include="CustomerDetails.aspx" />
     <Content Include="Scripts\site.js" />
     <Content Include="Web.config" />
   </ItemGroup>
@@ -97,6 +101,22 @@
       <DependentUpon>BookingConfirmation.aspx</DependentUpon>
       <SubType>ASPXCodeBehind</SubType>
     </Compile>
+    <Compile Include="AdminPanel.aspx.cs">
+      <DependentUpon>AdminPanel.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="ProductDetails.aspx.cs">
+      <DependentUpon>ProductDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CustomerManagement.aspx.cs">
+      <DependentUpon>CustomerManagement.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
+    <Compile Include="CustomerDetails.aspx.cs">
+      <DependentUpon>CustomerDetails.aspx</DependentUpon>
+      <SubType>ASPXCodeBehind</SubType>
+    </Compile>
     <Compile Include="Default.aspx.designer.cs">
       <DependentUpon>Default.aspx</DependentUpon>
     </Compile>
@@ -114,6 +134,18 @@
     </Compile>
     <Compile Include="BookingConfirmation.aspx.designer.cs">
       <DependentUpon>BookingConfirmation.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="AdminPanel.aspx.designer.cs">
+      <DependentUpon>AdminPanel.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="ProductDetails.aspx.designer.cs">
+      <DependentUpon>ProductDetails.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerManagement.aspx.designer.cs">
+      <DependentUpon>CustomerManagement.aspx</DependentUpon>
+    </Compile>
+    <Compile Include="CustomerDetails.aspx.designer.cs">
+      <DependentUpon>CustomerDetails.aspx</DependentUpon>
     </Compile>
     <Compile Include="Site.Master.designer.cs">
       <DependentUpon>Site.Master</DependentUpon>

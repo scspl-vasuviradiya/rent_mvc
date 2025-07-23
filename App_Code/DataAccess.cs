@@ -259,5 +259,123 @@ public class DataAccess
         return 0;
     }
 
+    public bool AddProduct(Product product)
+    {
+        string query = @"INSERT INTO Products (Code, Name, Description, ImageUrl, PricePerDay, Category, Size, Color, Status, WashingDays)
+                        VALUES (@Code, @Name, @Description, @ImageUrl, @PricePerDay, @Category, @Size, @Color, @Status, @WashingDays)";
+        
+        using (SqlConnection conn = new SqlConnection(connectionString))
+        {
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@Code", product.Code);
+                cmd.Parameters.AddWithValue("@Name", product.Name);
+                cmd.Parameters.AddWithValue("@Description", product.Description ?? "");
+                cmd.Parameters.AddWithValue("@ImageUrl", product.ImageUrl ?? "");
+                cmd.Parameters.AddWithValue("@PricePerDay", product.PricePerDay);
+                cmd.Parameters.AddWithValue("@Category", product.Category);
+                cmd.Parameters.AddWithValue("@Size", product.Size);
+                cmd.Parameters.AddWithValue("@Color", product.Color);
+                cmd.Parameters.AddWithValue("@Status", product.Status);
+                cmd.Parameters.AddWithValue("@WashingDays", product.WashingDays);
+                
+                conn.Open();
+                int rowsAffected = cmd.ExecuteNonQuery();
+                return rowsAffected > 0;
+            }
+        }
+    }
+
+    public List<Booking> GetBookingsByProductId(int productId)
+    {
+        List<Booking> bookings = new List<Booking>();
+        
+        string query = @"SELECT b.*, p.Name as ProductName, p.Code as ProductCode, p.ImageUrl as ProductImageUrl 
+                        FROM Bookings b 
+                        INNER JOIN Products p ON b.ProductId = p.Id
+                        WHERE b.ProductId = @ProductId
+                        ORDER BY b.CreatedAt DESC";
+
+        using (SqlConnection conn = new SqlConnection(connectionString))
+        {
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@ProductId", productId);
+                conn.Open();
+                
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        bookings.Add(new Booking
+                        {
+                            Id = (int)reader["Id"],
+                            ProductId = (int)reader["ProductId"],
+                            StartDate = (DateTime)reader["StartDate"],
+                            EndDate = (DateTime)reader["EndDate"],
+                            TotalPrice = (decimal)reader["TotalPrice"],
+                            Status = reader["Status"].ToString(),
+                            CustomerName = reader["CustomerName"].ToString(),
+                            CustomerEmail = reader["CustomerEmail"].ToString(),
+                            CustomerPhone = reader["CustomerPhone"].ToString(),
+                            CustomerAddress = reader["CustomerAddress"].ToString(),
+                            CreatedAt = (DateTime)reader["CreatedAt"],
+                            ProductName = reader["ProductName"].ToString(),
+                            ProductCode = reader["ProductCode"].ToString(),
+                            ProductImageUrl = reader["ProductImageUrl"].ToString()
+                        });
+                    }
+                }
+            }
+        }
+        
+        return bookings;
+    }
+
+    public List<Booking> GetBookingsByCustomerEmail(string customerEmail)
+    {
+        List<Booking> bookings = new List<Booking>();
+        
+        string query = @"SELECT b.*, p.Name as ProductName, p.Code as ProductCode, p.ImageUrl as ProductImageUrl 
+                        FROM Bookings b 
+                        INNER JOIN Products p ON b.ProductId = p.Id
+                        WHERE b.CustomerEmail = @CustomerEmail
+                        ORDER BY b.CreatedAt DESC";
+
+        using (SqlConnection conn = new SqlConnection(connectionString))
+        {
+            using (SqlCommand cmd = new SqlCommand(query, conn))
+            {
+                cmd.Parameters.AddWithValue("@CustomerEmail", customerEmail);
+                conn.Open();
+                
+                using (SqlDataReader reader = cmd.ExecuteReader())
+                {
+                    while (reader.Read())
+                    {
+                        bookings.Add(new Booking
+                        {
+                            Id = (int)reader["Id"],
+                            ProductId = (int)reader["ProductId"],
+                            StartDate = (DateTime)reader["StartDate"],
+                            EndDate = (DateTime)reader["EndDate"],
+                            TotalPrice = (decimal)reader["TotalPrice"],
+                            Status = reader["Status"].ToString(),
+                            CustomerName = reader["CustomerName"].ToString(),
+                            CustomerEmail = reader["CustomerEmail"].ToString(),
+                            CustomerPhone = reader["CustomerPhone"].ToString(),
+                            CustomerAddress = reader["CustomerAddress"].ToString(),
+                            CreatedAt = (DateTime)reader["CreatedAt"],
+                            ProductName = reader["ProductName"].ToString(),
+                            ProductCode = reader["ProductCode"].ToString(),
+                            ProductImageUrl = reader["ProductImageUrl"].ToString()
+                        });
+                    }
+                }
+            }
+        }
+        
+        return bookings;
+    }
     #endregion
 }
